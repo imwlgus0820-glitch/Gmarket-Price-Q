@@ -1,0 +1,6 @@
+{
+  "name": "Gmarket PriceQ",
+  "description": "AI-powered strategic pricing optimizer and analytical engine for e-commerce sellers on Gmarket.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

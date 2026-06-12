@@ -1,0 +1,16 @@
+# Render.com 무료 배포 설정
+# https://render.com 에서 GitHub 연결 후 자동 배포됩니다.
+# 배포 완료 시 https://gmarket-priceq.onrender.com 형태의 고정 URL이 생성됩니다.
+
+services:
+  - type: web
+    name: gmarket-priceq
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
