@@ -65,6 +65,8 @@ export default function ChatView({
     setIsLoading(true);
 
     try {
+      // 🛠️ 여기서부터 복사해서 try { ... } 내부에 붙여넣으세요!
+    try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,14 +75,29 @@ export default function ChatView({
 
       const data = await response.json();
       
+      // [해결 핵심] 사용자의 질문 키워드에 따라 AI의 답변 텍스트를 다이나믹하게 변경
+      let dynamicAiText = data.text || '요청하신 데이터를 분석 중입니다.';
+
+      if (textToSend.includes('5월 BSD') || textToSend.includes('상위 100개')) {
+        dynamicAiText = '지난 5월 BSD 프로모션 기간 동안의 매출(GMV) 상위 품목 리스트입니다. 일부 가전 상품군이 가격 우위를 점하며 매출 성장을 견인했습니다. 상세 내역은 아래 표와 다운로드 파일을 참고하세요.';
+      } else if (textToSend.includes('라이브') || textToSend.includes('상위 10개')) {
+        dynamicAiText = '현재 스토어에서 실시간 판매(라이브) 중인 상품 중 GMV 스코어가 높은 상위 10개 품목군 현황입니다. 2번 상품의 경우 현재 경쟁사 특가로 인해 점유율이 둔화되고 있어 모니터링이 시급합니다.';
+      } else if (textToSend.includes('대시보드') || textToSend.includes('그래프')) {
+        dynamicAiText = '알겠습니다! 요청하신 BSD 실적 데이터를 시각화할 수 있도록 대시보드 리포트 생성 작업을 스케줄러에 할당했습니다. 작업이 완료되었으니 대시보드 메뉴로 이동해 확인해 보세요.';
+      } else if (textToSend.includes('최저가') || textToSend.includes('경쟁사')) {
+        dynamicAiText = '현재 타사 오픈마켓 대비 가격 경쟁력이 밀리고 있는 상품 목록을 추려냈습니다. 마진 확보가 가능한 안전선 내에서 즉시 최저가 맞춤을 전개하는 것을 추천합니다.';
+      } else {
+        dynamicAiText = `문의하신 "${textToSend}"에 대한 시장 데이터 분석 결과입니다. 현재 카테고리 내 점유율 유지를 위해 지속적인 가격 모니터링 룸 연동을 권장합니다.`;
+      }
+      
       const assistantMsg: ChatMessage = {
         id: `m-${Date.now()}-ai`,
         role: 'assistant',
-        text: data.text || '죄송합니다. 분석 결과를 처리하는 동안 오류가 발생했습니다.',
+        text: dynamicAiText, // 👈 백엔드가 주는 고정값 대신 방금 만든 다이나믹 문구를 꽂음!
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
-      // Inline structured tables are parsed programmatically
+      // 테이블 및 태스크 생성 조건문 (기존에 있던 로직 그대로 유지)
       if (textToSend.includes('5월 BSD') || textToSend.includes('상위 100개')) {
         assistantMsg.tableData = [
           { rank: '01', name: 'Ultra-Light Mesh Runner Pro 2', price: 129000, gmv: '₩842.5M', status: '가격 우위' },
@@ -95,7 +112,6 @@ export default function ChatView({
         ];
         assistantMsg.suggestedActions = ['타사 최저가를 맞춰야 하는 상품 리스트 전달해줘'];
       } else if (textToSend.includes('대시보드') || textToSend.includes('그래프')) {
-        // Automatically create a dynamic task and register it
         const newTrackTask: Task = {
           id: `t-${Date.now()}`,
           title: 'BSD 실적 분석 시각화 리포트 생성',
@@ -105,14 +121,12 @@ export default function ChatView({
           date: new Date().toISOString().split('T')[0],
         };
 
-        // Update in backend store
         await fetch('/api/tasks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newTrackTask),
         });
 
-        // Sync with local state
         setTasks((prev) => {
           const filtered = prev.filter((t) => t.title !== 'BSD 실적 분석 시각화 리포트 생성');
           return [newTrackTask, ...filtered];
@@ -122,6 +136,7 @@ export default function ChatView({
       }
 
       setChatHistory((prev) => [...prev, assistantMsg]);
+    }
     } catch (err) {
       console.error(err);
       const assistantMsg: ChatMessage = {
