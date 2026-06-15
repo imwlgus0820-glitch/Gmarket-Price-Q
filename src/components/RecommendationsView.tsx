@@ -262,7 +262,7 @@ export default function RecommendationsView({ products, setProducts }: Recommend
   };
 
   return (
-    <div className="w-full h-full px-10 py-8 bg-slate-50 select-none overflow-y-auto">
+    <div className="w-full px-10 py-8 bg-slate-50 select-none ">
       <div className="max-w-4xl mx-auto space-y-6">
         
         <div className="text-left border-b border-gray-200 pb-5">
