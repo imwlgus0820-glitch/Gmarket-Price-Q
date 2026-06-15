@@ -4,7 +4,8 @@ import Header from './components/Header';
 import ChatView from './components/ChatView';
 import TasksView from './components/TasksView';
 import DashboardView from './components/DashboardView';
-import PriceManagementView from './components/PriceManagementView';
+// 1. 수정한 컴포넌트 이름과 경로로 정확히 매핑 (경로가 다르면 파일 위치에 맞게 수정해줘!)
+import RecommendationsView from './components/RecommendationsView'; 
 import { Product, Task, ChatMessage } from './types';
 import { INITIAL_PRODUCTS, INITIAL_TASKS } from './data/mockData';
 
@@ -14,22 +15,6 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   
-  // Initialize standard strategic introductory conversation
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
-    {
-      id: 'm-init',
-      role: 'assistant',
-      text: '안녕하세요! PriceQ 입니다. 실적 분석, 가격 최적화, 경쟁사 동향 등 어떤 전략적 인사이트가 필요하신가요? 아래 추천 항목을 선택하거나 궁금한 점을 입력해 주세요.',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      suggestedActions: [
-        '최근 GMV 상위 품목 분석해줘',
-        '이번 5월 BSD에서 가장 잘 팔린 상품 리스트 100개와 가격 그리고 GMV 알려줘.',
-        '경쟁사 가격 변동 리포트'
-      ]
-    }
-  ]);
-
-  // Synchronize data on mount with full-stack server endpoints
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -49,7 +34,6 @@ export default function App() {
     fetchInitialData();
   }, []);
 
-  // Handler: Wipes conversation stream back to premium introduction state
   const handleNewChat = () => {
     setChatHistory([
       {
@@ -67,10 +51,23 @@ export default function App() {
     setActiveTab('chat');
   };
 
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
+    {
+      id: 'm-init',
+      role: 'assistant',
+      text: '안녕하세요! PriceQ 입니다. 실적 분석, 가격 최적화, 경쟁사 동향 등 어떤 전략적 인사이트가 필요하신가요? 아래 추천 항목을 선택하거나 궁금한 점을 입력해 주세요.',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      suggestedActions: [
+        '최근 GMV 상위 품목 분석해줘',
+        '이번 5월 BSD에서 가장 잘 팔린 상품 리스트 100개와 가격 그리고 GMV 알려줘.',
+        '경쟁사 가격 변동 리포트'
+      ]
+    }
+  ]);
+
   return (
     <div className="bg-white text-gray-600 flex h-screen overflow-hidden font-sans">
       
-      {/* Dynamic left side menu panel */}
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -79,13 +76,10 @@ export default function App() {
         setDarkMode={() => {}}
       />
 
-      {/* Main operational view canvas */}
       <div className="flex-1 flex flex-col min-w-0 bg-white relative">
         
-        {/* Dynamic header navigation */}
         <Header activeTab={activeTab} products={products} />
 
-        {/* Selected subcomponent renderer modules */}
         <div className="flex-1 flex flex-col min-h-0">
           {activeTab === 'chat' && (
             <ChatView 
@@ -112,8 +106,9 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'price-management' && (
-            <PriceManagementView 
+          {/* 2. 사이드바 탭 키 이름 유연하게 매핑 및 올바른 컴포넌트 연결 */}
+          {(activeTab === 'price-management' || activeTab === 'recommendations') && (
+            <RecommendationsView 
               products={products} 
               setProducts={setProducts} 
             />
