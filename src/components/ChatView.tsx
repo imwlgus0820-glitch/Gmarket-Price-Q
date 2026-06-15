@@ -65,16 +65,6 @@ export default function ChatView({
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: textToSend, chatHistory: chatHistory }),
-      });
-
-      const data = await response.json();
-      
-      // [해결 핵심] 사용자의 질문 키워드에 따라 AI의 답변 텍스트를 다이나믹하게 변경
-    try {
       let serverText = '';
       try {
         const response = await fetch('/api/chat', {
@@ -91,7 +81,7 @@ export default function ChatView({
       let dynamicAiText = serverText || '요청하신 데이터를 분석 중입니다.';
       const upperText = textToSend.toUpperCase();
 
-      // 🌟 [다양한 답변 시나리오 확장 분기 리스트]
+      // [다양한 답변 시나리오 확장 분기 리스트]
       if (upperText.includes('5월 BSD') || upperText.includes('5월BSD') || upperText.includes('상위 100개')) {
         dynamicAiText = '지난 5월 BSD 프로모션 기간 동안의 매출(GMV) 상위 품목 리스트입니다. 일부 가전 상품군이 가격 우위를 점하며 매출 성장을 견인했습니다. 상세 내역은 아래 표와 다운로드 파일을 참고하세요.';
       } 
@@ -104,23 +94,18 @@ export default function ChatView({
       else if (upperText.includes('최저가') || upperText.includes('경쟁사') || upperText.includes('가격 경쟁')) {
         dynamicAiText = '현재 타사 오픈마켓 대비 가격 경쟁력이 밀리고 있는 상품 목록을 추려냈습니다. 마진 확보가 가능한 안전선 내에서 즉시 최저가 맞춤을 전개하는 것을 추천합니다.';
       } 
-      // ➕ 추가 1: 마진율/정산 관련 질문 대응
       else if (upperText.includes('마진') || upperText.includes('수수료') || upperText.includes('원가')) {
         dynamicAiText = '현재 스토어의 평균 마진율은 약 22.4%로 집계됩니다. Gmarket 카테고리 수수료 및 배송비를 제외한 수치이며, 여기서 가격을 3% 이상 추가 인하할 경우 일부 품목(SKU)이 적자 구간에 진입할 위험이 있으니 주의하세요.';
       }
-      // ➕ 추가 2: 추천/소싱 아이템 관련 질문 대응
       else if (upperText.includes('추천') || upperText.includes('소싱') || upperText.includes('잘 팔릴')) {
         dynamicAiText = '최근 오픈마켓 트렌드 데이터를 분석한 결과, 다음 주부터 [디지털/가전 부속품] 및 [여름 시즌 리빙 기획 상품]의 수요가 급증할 것으로 예측됩니다. 경쟁사들의 재고가 부족한 틈새 가격대를 선점해 보시는 걸 권장합니다.';
       }
-      // ➕ 추가 3: 광고/노출 관련 질문 대응
       else if (upperText.includes('광고') || upperText.includes('노출') || upperText.includes('순위')) {
         dynamicAiText = '현재 셀러님의 주력 상품 A의 검색 노출 순위가 전일 대비 4계단 하락했습니다. 경쟁 타사가 키워드 광고 입찰가를 올렸거나, 가격 점수(최저가 가중치)에서 밀렸을 가능성이 높습니다. 가격을 500원 낮추거나 랭킹 부스팅 광고를 연동해 보세요.';
       }
-      // ➕ 추가 4: 인사인사 대답
       else if (upperText.includes('안녕') || upperText.includes('HI') || upperText.includes('ㅎㅇ')) {
         dynamicAiText = '안녕하세요! 가격 최적화 비서 PriceQ입니다. 🖐️ 오늘 어떤 상품의 가격 경쟁력을 진단해 드릴까요? 궁금한 키워드나 상품명을 입력해 주세요!';
       }
-      // 기본 답변 (아무것도 매칭 안 될 때)
       else {
         dynamicAiText = `문의하신 "${textToSend}"에 대한 시장 데이터 분석 결과입니다. 현재 카테고리 내 점유율 유지를 위해 왼쪽 메뉴의 'PriceQ Recommendation(추천 가격 방)' 메뉴를 연동하여 실시간 추천 카드를 확인해 보시는 것을 강력히 추천합니다.`;
       }
@@ -133,62 +118,7 @@ export default function ChatView({
       };
 
       // [테이블 및 태스크 UI 컴포넌트 매칭 영역]
-      if (upperText.includes('5월 BSD') || upperText.includes('5월BSD') || upperText.includes('상위 100개')) {
-        assistantMsg.tableData = [
-          { rank: '01', name: 'Ultra-Light Mesh Runner Pro 2', price: 129000, gmv: '₩842.5M', status: '가격 우위' },
-          { rank: '02', name: 'Tech-Series Wireless Earbuds X', price: 89000, gmv: '₩615.2M', status: '최저가 유지' },
-          { rank: '03', name: 'Ergo-Comfort Workspace Chair', price: 245000, gmv: '₩588.1M', status: '가격 우위' },
-        ];
-        assistantMsg.suggestedActions = ['대시보드에서 그래프로 볼 수 있게 해줘.'];
-      } else if (upperText.includes('라이브') || upperText.includes('상위 10개')) {
-        assistantMsg.tableData = [
-          { rank: '1', name: '울트라 가벼운 맥북 에어 파우치 13인치', price: 24900, gmv: '₩12,450,000', status: '최저가 유지' },
-          { rank: '2', name: '고해상도 C-Type 허브 7-in-1', price: 45000, gmv: '₩8,920,000', status: '경쟁 밀림' },
-        ];
-        assistantMsg.suggestedActions = ['타사 최저가를 맞춰야 하는 상품 리스트 전달해줘'];
-      } else if (upperText.includes('대시보드') || upperText.includes('그래프')) {
-        const newTrackTask: Task = {
-          id: `t-${Date.now()}`,
-          title: 'BSD 실적 분석 시각화 리포트 생성',
-          target: 'Top 100 Products',
-          metric: 'GMV & Price Trend',
-          status: '그래프 생성 완료',
-          date: new Date().toISOString().split('T')[0],
-        };
-
-        try {
-          await fetch('/api/tasks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newTrackTask),
-          });
-        } catch(e){}
-
-        setTasks((prev) => {
-          const filtered = prev.filter((t) => t.title !== 'BSD 실적 분석 시각화 리포트 생성');
-          return [newTrackTask, ...filtered];
-        });
-
-        assistantMsg.task = newTrackTask;
-      }
-
-      setChatHistory((prev) => [...prev, assistantMsg]);
-    }
-
-      setChatHistory((prev) => [...prev, assistantMsg]);
-    } catch (err) {
-      console.error(err);
-      const assistantMsg: ChatMessage = {
-        id: `m-${Date.now()}-ai`,
-        role: 'assistant',
-        text: '죄송합니다. 네트워크 통신 오류 또는 Gemini API 엔진에 도달할 수 없습니다. 모킹된 데이터베이스 분석 결과를 대신 반환합니다.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      setChatHistory((prev) => [...prev, assistantMsg]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      if (upperText.includes('5월 BSD') || upperText.
 
   // Real CSV Download trigger handler
   const handleDownloadCSV = (tableData: any[], filename: string) => {
