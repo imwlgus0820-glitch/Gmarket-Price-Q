@@ -9,7 +9,8 @@ import {
   Moon, 
   Sun,
   LayoutGrid,
-  TrendingDown
+  TrendingDown,
+  Sparkles
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -30,6 +31,7 @@ export default function Sidebar({
   const menuItems = [
     { id: 'chat', label: 'Chat', icon: MessageSquare },
     { id: 'tasks', label: 'Tasks', icon: ClipboardList },
+    { id: 'recommendations', label: 'AI Recommendation', icon: Sparkles },
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'price-management', label: 'Price Management', icon: LayoutGrid },
   ];
