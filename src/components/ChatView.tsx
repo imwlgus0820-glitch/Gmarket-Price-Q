@@ -48,7 +48,7 @@ export default function ChatView({
     '타사 최저가를 맞춰야 하는 상품 리스트 전달해줘'
   ];
 
-  // Primary messaging function to talk with server-side proxy
+ // Primary messaging function to talk with server-side proxy
   const handleSendMessage = async (textToSend: string) => {
     if (!textToSend.trim() || isLoading) return;
 
@@ -64,8 +64,6 @@ export default function ChatView({
     setInputText('');
     setIsLoading(true);
 
-    try {
-      // 🛠️ 여기서부터 복사해서 try { ... } 내부에 붙여넣으세요!
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -93,11 +91,11 @@ export default function ChatView({
       const assistantMsg: ChatMessage = {
         id: `m-${Date.now()}-ai`,
         role: 'assistant',
-        text: dynamicAiText, // 👈 백엔드가 주는 고정값 대신 방금 만든 다이나믹 문구를 꽂음!
+        text: dynamicAiText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
-      // 테이블 및 태스크 생성 조건문 (기존에 있던 로직 그대로 유지)
+      // 테이블 및 태스크 생성 조건문
       if (textToSend.includes('5월 BSD') || textToSend.includes('상위 100개')) {
         assistantMsg.tableData = [
           { rank: '01', name: 'Ultra-Light Mesh Runner Pro 2', price: 129000, gmv: '₩842.5M', status: '가격 우위' },
