@@ -1,17 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Sparkles, 
-  Check, 
-  Zap, 
-  TrendingUp, 
-  ArrowRight,
-  RefreshCw,
-  Award,
-  AlertCircle,
-  HelpCircle,
-  ShieldCheck,
-  Percent,
-  ChevronDown,
+  ChevronDown, 
   ChevronUp
 } from 'lucide-react';
 import { Product } from '../types';
@@ -21,7 +11,6 @@ interface RecommendationsViewProps {
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
 }
 
-// Custom design specifications for each recommended product
 const RECOMMENDATION_METADATA: Record<string, {
   image: string;
   tag: string;
@@ -100,7 +89,6 @@ export default function RecommendationsView({ products, setProducts }: Recommend
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  // Deterministic, secure baseline lowest price calculator representing cost + minimum sustainable buffer (approx 8% margin retention)
   const getOwnLowestPrice = (id: string, compPrice: number): number => {
     switch (id) {
       case 'p1': return 119000;
@@ -141,31 +129,30 @@ export default function RecommendationsView({ products, setProducts }: Recommend
     }, 4500);
   };
 
-  // Divide keys into Primary (always visible) vs Secondary (toggled via 더보기)
   const primaryKeys = ['p1', 'p2', 'p5'];
   const secondaryKeys = ['p3', 'p6', 'p8', 'p10'];
 
   const renderProductCard = (productId: string, index: number) => {
     const product = products.find((p) => p.id === productId);
     const metadata = RECOMMENDATION_METADATA[productId];
+    
+    // 안전한 컴포넌트 방어 코드 기입 위치 수정
     if (!product || !metadata) return null;
 
-    const currentPrice = product.myPrice;
-    const competitorPrice = product.compPrice;
+    const currentPrice = product.myPrice || 0;
+    const competitorPrice = product.compPrice || 0;
     const targetOwnLowest = getOwnLowestPrice(productId, competitorPrice);
     
-    // Status metrics calculation dynamically
     const priceDiff = currentPrice - competitorPrice;
     const diffPercent = competitorPrice > 0 ? ((priceDiff / competitorPrice) * 100).toFixed(1) : '0';
 
-    // Format template strings dynamically
-    const analysisText = metadata.analysisTemplate
+    const analysisText = (metadata.analysisTemplate || '')
       .replace('{myPrice}', currentPrice.toLocaleString())
       .replace('{compPrice}', competitorPrice.toLocaleString())
       .replace('{ownLowest}', targetOwnLowest.toLocaleString())
       .replace('{diffPercent}', diffPercent);
 
-    const insightText = metadata.insightTemplate
+    const insightText = (metadata.insightTemplate || '')
       .replace('{myPrice}', currentPrice.toLocaleString())
       .replace('{compPrice}', competitorPrice.toLocaleString())
       .replace('{ownLowest}', targetOwnLowest.toLocaleString());
@@ -177,28 +164,26 @@ export default function RecommendationsView({ products, setProducts }: Recommend
       <div 
         key={productId}
         className={`bg-white rounded-[24px] border-l-4 ${
-          metadata.tagColor === 'red' ? 'border-l-red-500' : 'border-l-[#32B33A]'
-        } border border-gray-150 p-6 flex flex-col md:flex-row gap-6 transition-all duration-300 shadow-sm hover:shadow-md align-start text-left`}
+          metadata.tagColor === 'red' ? 'border-l-red-500' : 'border-l-green-500'
+        } border border-gray-200 p-6 flex flex-col md:flex-row gap-6 transition-all duration-300 shadow-sm hover:shadow-md items-start text-left`}
       >
-        {/* Product Thumbnail on the Left */}
-        <div className="w-full md:w-44 h-44 bg-gray-50 rounded-2xl overflow-hidden flex items-center justify-center p-3 border border-gray-100 flex-shrink-0 relative">
+        <div className="w-full md:w-44 h-44 bg-gray-50 rounded-2xl overflow-hidden flex items-center justify-center p-3 border border-gray-100 shrink-0 relative">
           <img 
             src={metadata.image} 
             alt={product.name} 
             className="w-full h-full object-contain mix-blend-multiply"
             referrerPolicy="no-referrer"
           />
-          <span className="absolute top-2 left-2 bg-gray-900/80 backdrop-blur-xs text-white text-[9px] px-2 py-0.5 rounded-md font-bold">
+          <span className="absolute top-2 left-2 bg-gray-900/80 text-white text-[9px] px-2 py-0.5 rounded-md font-bold">
             {product.category}
           </span>
         </div>
 
-        {/* Info and Actions on the Right */}
-        <div className="flex-1 flex flex-col justify-between space-y-4">
+        <div className="flex-1 flex flex-col justify-between space-y-4w-full">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className={`text-[10px] font-black tracking-wider px-2 py-0.5 rounded ${
-                metadata.tagColor === 'red' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-[#32B33A]'
+                metadata.tagColor === 'red' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-600'
               }`}>
                 {metadata.tag}
               </span>
@@ -209,7 +194,6 @@ export default function RecommendationsView({ products, setProducts }: Recommend
               {product.name}
             </h3>
 
-            {/* 분석 결과 section */}
             <div className="space-y-1">
               <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">분석 결과</h4>
               <p className="text-xs text-gray-600 font-medium leading-relaxed">
@@ -217,18 +201,16 @@ export default function RecommendationsView({ products, setProducts }: Recommend
               </p>
             </div>
 
-            {/* AI Insight banner */}
-            <div className="bg-green-50/75 rounded-2xl p-4 border border-green-100 flex items-start gap-2.5 mt-3">
-              <Sparkles className="w-4 h-4 text-[#32B33A] shrink-0 mt-0.5 animate-pulse" />
+            <div className="bg-green-50 rounded-2xl p-4 border border-green-100 flex items-start gap-2.5 mt-3">
+              <Sparkles className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
               <div className="text-xs text-gray-600 leading-relaxed font-semibold">
-                <span className="text-[#32B33A] font-extrabold mr-1">AI Insight:</span> 
+                <span className="text-green-600 font-extrabold mr-1">AI Insight:</span> 
                 {insightText}
               </div>
             </div>
           </div>
 
-          {/* Actions & Conversion Boost Slider Indicator */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3 border-t border-gray-50">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3 border-t border-gray-100">
             <div className="flex items-center gap-2">
               {productId === 'p2' ? (
                 <div className="flex items-center gap-2">
@@ -241,21 +223,21 @@ export default function RecommendationsView({ products, setProducts }: Recommend
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <div className="w-24 bg-gray-150 rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-[#32B33A] h-full" style={{ width: `${metadata.percentage}%` }}></div>
+                  <div className="w-24 bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-green-500 h-full" style={{ width: `${metadata.percentage}%` }}></div>
                   </div>
                   <span className="text-[10px] text-gray-400 font-black tracking-wider">{metadata.potentialLabel}</span>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-2 self-end">
+            <div className="flex items-center gap-2 sm:self-end">
               <button
                 onClick={() => handleApplySinglePrice(productId, competitorPrice, '타사 최저가')}
                 disabled={isMatchComp}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                   isMatchComp 
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-150' 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
                     : 'bg-red-50 hover:bg-red-500 hover:text-white text-red-500 border border-red-200'
                 }`}
               >
@@ -266,8 +248,8 @@ export default function RecommendationsView({ products, setProducts }: Recommend
                 disabled={isMatchOwn}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
                   isMatchOwn 
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-150' 
-                    : 'bg-green-50 hover:bg-[#32B33A] hover:text-white text-[#32B33A] border border-green-200'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
+                    : 'bg-green-50 hover:bg-green-500 hover:text-white text-green-600 border border-green-200'
                 }`}
               >
                 {isMatchOwn ? '자사 최저가 일치' : '자사 최저가 적용'}
@@ -280,35 +262,30 @@ export default function RecommendationsView({ products, setProducts }: Recommend
   };
 
   return (
-    <div className="flex-1 overflow-y-auto px-10 py-8 bg-slate-50 select-none">
+    <div className="w-full min-h-screen px-10 py-8 bg-slate-50 select-none">
       <div className="max-w-4xl mx-auto space-y-6">
         
-        {/* Top Breadcrumb & Title exact like mockup design */}
-        <div className="text-left border-b border-gray-150 pb-5">
+        <div className="text-left border-b border-gray-200 pb-5">
           <span className="text-xs font-black text-gray-400 font-mono uppercase tracking-widest block mb-1">Gmarket</span>
           <h2 className="text-2xl font-black text-gray-800 leading-tight">PriceQ Recommendation</h2>
           
-          <div className="flex items-center gap-2 mt-3 text-[#32B33A] font-bold text-xs border-l-3 border-[#32B33A] pl-3 py-0.5 bg-green-50/50 rounded-r-xl max-w-lg">
+          <div className="flex items-center gap-2 mt-3 text-green-600 font-bold text-xs border-l-4 border-green-500 pl-3 py-0.5 bg-green-50 variant-soft-success rounded-r-xl max-w-lg">
             AI 실시간 시장 데이터 분석 기반 최적 가격 제안
           </div>
         </div>
 
-        {/* Global Toast Success Message */}
         {successMessage && (
-          <div className="bg-green-50 border-l-4 border-[#32B33A] text-[#32B33A] p-4 rounded-xl text-xs font-black flex items-center justify-between shadow-sm animate-bounce text-left">
+          <div className="bg-green-50 border-l-4 border-green-500 text-green-600 p-4 rounded-xl text-xs font-black flex items-center justify-between shadow-sm text-left">
             <span>{successMessage}</span>
-            <button onClick={() => setSuccessMessage(null)} className="text-[#32B33A] hover:opacity-80 font-bold ml-2">닫기</button>
+            <button onClick={() => setSuccessMessage(null)} className="text-green-600 hover:opacity-80 font-bold ml-2">닫기</button>
           </div>
         )}
 
-        {/* Recommendation Cards Flow */}
         <div className="space-y-6">
-          {/* Render 3 Primary Cards */}
           {primaryKeys.map((key, i) => renderProductCard(key, i))}
 
-          {/* Expanded Cards Area with Transition */}
           {isExpanded && (
-            <div className="space-y-6 pt-2 border-t border-dashed border-gray-200 animate-fadeIn">
+            <div className="space-y-6 pt-2 border-t border-dashed border-gray-200">
               <div className="text-[11px] font-black text-gray-400 uppercase tracking-widest text-left mb-2">
                 추가 AI 분석 추천 상품군
               </div>
@@ -316,17 +293,16 @@ export default function RecommendationsView({ products, setProducts }: Recommend
             </div>
           )}
 
-          {/* 더보기 / 접기 Toggle Button styled beautifully */}
           <div className="pt-4 flex justify-center">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="px-8 py-3.5 bg-white border border-gray-200 hover:border-[#32B33A] text-gray-700 hover:text-[#32B33A] rounded-2xl text-xs font-black flex items-center gap-2 transition-all shadow-sm hover:shadow active:scale-95 cursor-pointer"
+              className="px-8 py-3.5 bg-white border border-gray-200 hover:border-green-500 text-gray-700 hover:text-green-500 rounded-2xl text-xs font-black flex items-center gap-2 transition-all shadow-sm hover:shadow active:scale-95 cursor-pointer"
             >
               <span>{isExpanded ? '추천 항목 접기' : '더 많은 추천 항목 보기 (더보기)'}</span>
               {isExpanded ? (
                 <ChevronUp className="w-4 h-4 shrink-0" />
               ) : (
-                <ChevronDown className="w-4 h-4 shrink-0 animate-bounce" />
+                <ChevronDown className="w-4 h-4 shrink-0" />
               )}
             </button>
           </div>
