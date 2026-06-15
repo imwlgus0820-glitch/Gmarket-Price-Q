@@ -136,7 +136,6 @@ export default function ChatView({
       }
 
       setChatHistory((prev) => [...prev, assistantMsg]);
-    }
     } catch (err) {
       console.error(err);
       const assistantMsg: ChatMessage = {
