@@ -235,12 +235,14 @@ export default function App() {
               setProducts={setProducts} 
             />
           )}
-          
+        
           {activeTab === 'recommendations' && (
-            <RecommendationsView 
-              products={products} 
-              setProducts={setProducts} 
-            />
+            <div className="w-full h-full overflow-y-auto bg-slate-50">
+              <RecommendationsView 
+                products={products} 
+                setProducts={setProducts} 
+              />
+            </div>
           )}
           
         </div>
