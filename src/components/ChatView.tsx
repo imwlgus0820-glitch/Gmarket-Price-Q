@@ -6,8 +6,6 @@ import {
   Download, 
   CheckCircle2, 
   ArrowRight,
-  TrendingUp,
-  LayoutGrid,
   Bot
 } from 'lucide-react';
 import { ChatMessage, Product, Task } from '../types';
@@ -40,16 +38,7 @@ export default function ChatView({
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory, isLoading]);
 
-  const quickActionQuestions = [
-    '최근 GMV 상위 품목 분석해줘',
-    '이번 5월 BSD에서 가장 잘 팔린 상품 리스트 100개와 가격 그리고 GMV 알려줘.',
-    '대시보드에서 그래프로 볼 수 있게 해줘.',
-    '지금 라이브 중인 나의 상품 중에서 GMV 상위 10개 상품 알려줘.',
-    '타사 최저가를 맞춰야 하는 상품 리스트 전달해줘'
-  ];
-
- // Primary messaging function to talk with server-side proxy
-// Primary messaging function to talk with server-side proxy
+  // Primary messaging function to talk with server-side proxy
   const handleSendMessage = async (textToSend: string) => {
     if (!textToSend.trim() || isLoading) return;
 
@@ -104,7 +93,6 @@ export default function ChatView({
       else if (upperText.includes('광고') || upperText.includes('노출') || upperText.includes('순위')) {
         dynamicAiText = '셀러님의 스토어 주력 핵심 상품군의 Gmarket 모바일/PC 검색 엔진 노출 순위 변동 모니터링 리포트입니다.\n\n현재 일부 카테고리에서 경쟁 타사가 검색 키워드 광고 입찰가를 공격적으로 인상했거나, 가격 비교 매칭 점수에서 밀려 전일 대비 순위가 하락한 위험 항목이 포착되었습니다. 검색 첫 페이지 노출 가독성을 복구하기 위한 즉각적인 입찰가 최적화 및 랭킹 부스팅 광고 연동 시나리오를 제안합니다.';
       }
-      // ➕ 가격 조정 키워드 감지 시 안내 문구
       else if (upperText.includes('가격 조정') || upperText.includes('가격조정') || upperText.includes('가격 고치고') || upperText.includes('가격 수정')) {
         dynamicAiText = '알겠습니다! 확인된 가격 경쟁력 밀림 위험 상품 및 마진 우수 상품군의 단가 최적화 이행 작업을 스케줄러에 등록했습니다.\n\n한 번의 클릭으로 스마트 스토어 및 마켓 가격을 일괄 매칭할 수 있는 툴을 활성화합니다. 아래 Task 생성 요약을 확인하신 후, 가격 관리(Price Management) 전용 메뉴 페이지로 즉시 이동하십시오.';
       }
@@ -193,7 +181,6 @@ export default function ChatView({
           return [newTrackTask, ...filtered];
         });
 
-        // 카드 생성 및 1.5초 후 가격 관리 탭으로 화면 강제 연동
         assistantMsg.task = newTrackTask;
         
         setTimeout(() => {
@@ -232,7 +219,7 @@ export default function ChatView({
       const assistantMsg: ChatMessage = {
         id: `m-${Date.now()}-ai`,
         role: 'assistant',
-        text: '죄송합니다. 처리 중 에러가 발생했습니다. 모킹된 데이터베이스 분석 결과를 대신 반환합니다.',
+        text: '죄송합니다. 오류가 발생했습니다. 모킹된 데이터베이스 분석 결과를 대신 반환합니다.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setChatHistory((prev) => [...prev, assistantMsg]);
@@ -240,9 +227,6 @@ export default function ChatView({
       setIsLoading(false);
     }
   };
-
-      // [테이블 및 태스크 UI 컴포넌트 매칭 영역]
-      if (upperText.includes('5월 BSD') || upperText.
 
   // Real CSV Download trigger handler
   const handleDownloadCSV = (tableData: any[], filename: string) => {
@@ -277,7 +261,6 @@ export default function ChatView({
               key={msg.id}
               className={`flex items-start gap-4 w-full ${isUser ? 'justify-end' : ''}`}
             >
-              {/* Bot Avatar */}
               {!isUser && (
                 <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0 border border-gray-150">
                   <Bot className="w-5 h-5 text-[#32B33A]" />
@@ -285,7 +268,6 @@ export default function ChatView({
               )}
 
               <div className={`flex flex-col gap-3 ${isUser ? 'max-w-[55%] min-w-0' : 'flex-1 min-w-0 w-full'}`}>
-                {/* Standard Message Card */}
                 <div
                   className={`p-6 rounded-3xl text-sm leading-relaxed shadow-sm ${
                     isUser
@@ -296,7 +278,6 @@ export default function ChatView({
                   <p className="whitespace-pre-line font-medium leading-relaxed">{msg.text}</p>
                 </div>
 
-                {/* If AI generates an analytical list table */}
                 {!isUser && msg.tableData && (
                   <div className="border border-gray-150 rounded-2xl overflow-hidden bg-white shadow-sm">
                     <table className="w-full text-xs text-left border-collapse">
@@ -329,7 +310,6 @@ export default function ChatView({
                   </div>
                 )}
 
-                {/* Loading status card and redirection prompt for chart assignments */}
                 {!isUser && msg.task && (
                   <div className="max-w-md bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-150">
                     <div className="bg-[#32B33A] px-5 py-2.5 flex justify-between items-center">
@@ -356,17 +336,16 @@ export default function ChatView({
                         </div>
                       </div>
                       <button
-                        onClick={() => setActiveTab('dashboard')}
+                        onClick={() => setActiveTab(msg.task?.title.includes('가격') ? 'price-management' : 'dashboard')}
                         className="w-full py-2.5 bg-gray-50 hover:bg-[#32B33A] hover:text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all text-gray-700 border border-gray-150"
                       >
-                        Go to Dashboard Menu
+                        {msg.task?.title.includes('가격') ? 'Go to Price Management' : 'Go to Dashboard Menu'}
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
                 )}
 
-                {/* Floating helpful action suggestions */}
                 {!isUser && msg.suggestedActions && (
                   <div className="flex flex-wrap gap-2 mt-1">
                     {msg.suggestedActions.map((action, actionId) => (
@@ -385,7 +364,6 @@ export default function ChatView({
           );
         })}
 
-        {/* Dynamic Loading indicator matching screenshots */}
         {isLoading && (
           <div className="flex items-start gap-4 w-full">
             <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0 animate-pulse border border-gray-150">
