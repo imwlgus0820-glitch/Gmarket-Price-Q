@@ -4,9 +4,7 @@ import {
   Sparkles, 
   CheckCircle2, 
   AlertCircle,
-  Zap,
-  TrendingUp,
-  Coins
+  Zap
 } from 'lucide-react';
 import { Product } from '../types';
 
@@ -38,8 +36,9 @@ export default function PriceManagementView({ products, setProducts }: PriceMana
   const [statusFilter, setStatusFilter] = useState('전체');
   const [temporaryPrices, setTemporaryPrices] = useState<{ [key: string]: number }>({});
   const [isOptimizing, setIsOptimizing] = useState(false);
-  // 💡 [추가] 현재 화면에 보여줄 상품 개수 상태 (기본 3개)
-const [visibleCount, setVisibleCount] = useState(3);
+  
+  // 💡 노출 개수 상태 선언 완료!
+  const [visibleCount, setVisibleCount] = useState(3);
 
   // Filter products catalog and search matches
   const filteredProducts = products.filter((p) => {
@@ -154,8 +153,11 @@ const [visibleCount, setVisibleCount] = useState(3);
             {['전체', '최저가 유지', '가격 우위', '경쟁 밀림'].map((tab) => (
               <button
                 key={tab}
-                onClick={() => {setStatusFilter(tab);
-                setVisibleCount(3);}}
+                // 💡 상단 탭 클릭시 3개 초기화 로직 적용 완료
+                onClick={() => {
+                  setStatusFilter(tab);
+                  setVisibleCount(3);
+                }}
                 className={`text-xs px-4 py-2 rounded-xl font-bold transition-all ${
                   statusFilter === tab
                     ? 'bg-[#32B33A] text-white shadow-sm'
@@ -184,214 +186,222 @@ const [visibleCount, setVisibleCount] = useState(3);
               <p className="text-sm text-gray-400 font-semibold italic">조회 조건에 부합하는 판매 상품 정보가 존재하지 않습니다.</p>
             </div>
           ) : (
-            {filteredProducts.slice(0, visibleCount).map((p) => {
-              const currentTempPrice = temporaryPrices[p.id] !== undefined ? temporaryPrices[p.id] : p.myPrice;
-              const hasChanged = currentTempPrice !== p.myPrice;
-              const ownLowest = getOwnLowestPrice(p.id, p.compPrice);
-              const compLowest = p.compPrice;
+            <>
+              {/* 💡 .slice 적용 및 맵 함수 정상 정렬 완료 */}
+              {filteredProducts.slice(0, visibleCount).map((p) => {
+                const currentTempPrice = temporaryPrices[p.id] !== undefined ? temporaryPrices[p.id] : p.myPrice;
+                const hasChanged = currentTempPrice !== p.myPrice;
+                const ownLowest = getOwnLowestPrice(p.id, p.compPrice);
+                const compLowest = p.compPrice;
 
-              return (
-                <div 
-                  key={p.id}
-                  className="bg-white rounded-2xl border border-gray-150 p-6 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center hover:shadow-sm transition-shadow relative"
-                >
-                  {/* Part 1: Product Identifications */}
-                  <div className="lg:col-span-4 w-full space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-gray-400 font-mono">RANK {p.rank}</span>
-                      <span className="text-[10px] bg-slate-50 border px-2 py-0.5 rounded text-gray-500 font-bold">{p.category}</span>
-                    </div>
-                    <h4 className="text-sm font-bold text-gray-800 tracking-tight leading-snug">
-                      {p.name}
-                    </h4>
-                    <div className="flex items-center gap-3 text-xs text-gray-400">
-                      <span>월간 판매량: {p.salesCount.toLocaleString()}개</span>
-                      <span>•</span>
-                      <span>원가 비율: {Math.round((1 - p.marginRate) * 100)}%</span>
-                    </div>
-                  </div>
-
-                  {/* Part 2: Interactive pricing matching status indicators */}
-                  <div className="lg:col-span-4 w-full flex flex-col sm:flex-row items-center justify-around gap-4 bg-gray-50 p-4 rounded-xl border border-gray-50">
-                    <div className="text-center">
-                      <span className="block text-[10px] text-gray-400 font-bold mb-1">내 판매 단가</span>
-                      <strong className="text-sm font-extrabold text-gray-800">
-                        ₩{p.myPrice.toLocaleString()}
-                      </strong>
+                return (
+                  <div 
+                    key={p.id}
+                    className="bg-white rounded-2xl border border-gray-150 p-6 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center hover:shadow-sm transition-shadow relative"
+                  >
+                    {/* Part 1: Product Identifications */}
+                    <div className="lg:col-span-4 w-full space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-gray-400 font-mono">RANK {p.rank}</span>
+                        <span className="text-[10px] bg-slate-50 border px-2 py-0.5 rounded text-gray-500 font-bold">{p.category}</span>
+                      </div>
+                      <h4 className="text-sm font-bold text-gray-800 tracking-tight leading-snug">
+                        {p.name}
+                      </h4>
+                      <div className="flex items-center gap-3 text-xs text-gray-400">
+                        <span>월간 판매량: {p.salesCount.toLocaleString()}개</span>
+                        <span>•</span>
+                        <span>원가 비율: {Math.round((1 - p.marginRate) * 100)}%</span>
+                      </div>
                     </div>
 
-                    <div className="text-center">
-                      <span className="block text-[10px] text-gray-400 font-bold mb-1">타사 최저 지수</span>
-                      <strong className="text-sm font-extrabold text-gray-500">
-                        ₩{p.compPrice.toLocaleString()}
-                      </strong>
+                    {/* Part 2: Interactive pricing matching status indicators */}
+                    <div className="lg:col-span-4 w-full flex flex-col sm:flex-row items-center justify-around gap-4 bg-gray-50 p-4 rounded-xl border border-gray-50">
+                      <div className="text-center">
+                        <span className="block text-[10px] text-gray-400 font-bold mb-1">내 판매 단가</span>
+                        <strong className="text-sm font-extrabold text-gray-800">
+                          ₩{p.myPrice.toLocaleString()}
+                        </strong>
+                      </div>
+
+                      <div className="text-center">
+                        <span className="block text-[10px] text-gray-400 font-bold mb-1">타사 최저 지수</span>
+                        <strong className="text-sm font-extrabold text-gray-500">
+                          ₩{p.compPrice.toLocaleString()}
+                        </strong>
+                      </div>
+
+                      <div className={`text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shrink-0 ${getStatusStyle(p.status)}`}>
+                        {p.status === '경쟁 밀림' ? <AlertCircle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                        <span>{p.status}</span>
+                      </div>
                     </div>
 
-                    <div className={`text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shrink-0 ${getStatusStyle(p.status)}`}>
-                      {p.status === '경쟁 밀림' ? <AlertCircle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                      <span>{p.status}</span>
-                    </div>
-                  </div>
+                    {/* Part 3: Slider interaction controllers */}
+                    <div className="lg:col-span-4 w-full space-y-3 pt-2 lg:pt-0">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-gray-400 font-semibold">단가 수동 최적화</span>
+                        <span className={`${hasChanged ? 'text-red-500 font-extrabold animate-pulse' : 'text-gray-700 font-bold'}`}>
+                          ₩{currentTempPrice.toLocaleString()} 
+                          {hasChanged && ' (반영 대기)'}
+                        </span>
+                      </div>
 
-                  {/* Part 3: Slider interaction controllers */}
-                  <div className="lg:col-span-4 w-full space-y-3 pt-2 lg:pt-0">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-400 font-semibold">단가 수동 최적화</span>
-                      <span className={`${hasChanged ? 'text-red-500 font-extrabold animate-pulse' : 'text-gray-700 font-bold'}`}>
-                        ₩{currentTempPrice.toLocaleString()} 
-                        {hasChanged && ' (반영 대기)'}
-                      </span>
-                    </div>
+                      {/* Interactive pricing slider */}
+                      <input
+                        type="range"
+                        min={Math.round(p.compPrice * 0.7)}
+                        max={Math.round(p.compPrice * 1.3)}
+                        step={100}
+                        value={currentTempPrice}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setTemporaryPrices({ ...temporaryPrices, [p.id]: val });
+                        }}
+                        className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#32B33A]"
+                      />
 
-                    {/* Interactive pricing slider */}
-                    <input
-                      type="range"
-                      min={Math.round(p.compPrice * 0.7)}
-                      max={Math.round(p.compPrice * 1.3)}
-                      step={100}
-                      value={currentTempPrice}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        setTemporaryPrices({ ...temporaryPrices, [p.id]: val });
-                      }}
-                      className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#32B33A]"
-                    />
+                      <div className="flex gap-2">
+                        {hasChanged && (
+                          <>
+                            <button
+                              onClick={() => {
+                                const resetTemp = { ...temporaryPrices };
+                                delete resetTemp[p.id];
+                                setTemporaryPrices(resetTemp);
+                              }}
+                              className="flex-1 py-1.5 bg-gray-100 text-gray-500 rounded-lg text-[11px] font-bold hover:bg-gray-200 transition-colors"
+                            >
+                              초기화
+                            </button>
+                            <button
+                              onClick={() => handleUpdatePrice(p.id, currentTempPrice)}
+                              className="flex-2 py-1.5 bg-[#32B33A] text-white rounded-lg text-[11px] font-black hover:bg-green-600 transition-all shadow-sm"
+                            >
+                              가격 반영
+                            </button>
+                          </>
+                        )}
 
-                    <div className="flex gap-2">
-                      {hasChanged && (
-                        <>
+                        {!hasChanged && p.status === '경쟁 밀림' && (
                           <button
                             onClick={() => {
-                              const resetTemp = { ...temporaryPrices };
-                              delete resetTemp[p.id];
-                              setTemporaryPrices(resetTemp);
+                              setTemporaryPrices({ ...temporaryPrices, [p.id]: p.compPrice });
                             }}
-                            className="flex-1 py-1.5 bg-gray-100 text-gray-500 rounded-lg text-[11px] font-bold hover:bg-gray-200 transition-colors"
+                            className="w-full py-2 bg-[#32B33A]/15 text-[#32B33A] rounded-xl text-[11px] font-black hover:bg-[#32B33A] hover:text-white transition-all flex items-center justify-center gap-1"
                           >
-                            초기화
+                            <Sparkles className="w-3.5 h-3.5" />
+                            AI 최저가 ₩{p.compPrice.toLocaleString()} 매칭 제안
                           </button>
-                          <button
-                            onClick={() => handleUpdatePrice(p.id, currentTempPrice)}
-                            className="flex-2 py-1.5 bg-[#32B33A] text-white rounded-lg text-[11px] font-black hover:bg-green-600 transition-all shadow-sm"
-                          >
-                            가격 반영
-                          </button>
-                        </>
-                      )}
+                        )}
+                      </div>
+                    </div>
 
-                      {!hasChanged && p.status === '경쟁 밀림' && (
+                    {/* Row 2: 자사/타사 최저가 매칭 및 예상 효과 분석 */}
+                    <div className="lg:col-span-12 w-full mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                      {/* 타사 최저가 대응 카드 */}
+                      <div className="bg-gray-50/50 hover:bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col justify-between transition-colors">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-gray-500 flex items-center gap-1.5">
+                              <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                              타사 최저가 (경쟁 최저 지수)
+                            </span>
+                            <strong className="text-sm font-black text-red-500 font-mono">
+                              ₩{compLowest.toLocaleString()}
+                            </strong>
+                          </div>
+                          <div className="bg-white rounded-xl p-3 border border-gray-100 space-y-1">
+                            <div className="flex items-center justify-between text-[10px] text-gray-400 font-black">
+                              <span>🎯 타사 최저가 매칭 예상 효과</span>
+                              <span className="text-red-500 bg-red-50 px-1.5 rounded text-[9px]">Gmarket 최저가 유지</span>
+                            </div>
+                            <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
+                              경쟁사의 최저가 판매 전선과 수평 일치시킴으로써 Gmarket 최적 노출 알고리즘 수혜. 
+                              <strong> Gmarket 검색 지수 즉시 복원</strong> 및 <strong>월간 판매량 약 1.25배 상승</strong>으로 월 예상 판매량 <strong className="text-gray-800">{Math.round(p.salesCount * 1.25).toLocaleString()}개</strong> 및 예상 월 GMV <strong className="text-gray-800">₩{Math.round(p.salesCount * 1.25 * compLowest).toLocaleString()}원</strong>수호 전망.
+                            </p>
+                          </div>
+                        </div>
                         <button
                           onClick={() => {
-                            setTemporaryPrices({ ...temporaryPrices, [p.id]: p.compPrice });
+                            const resetTemp = { ...temporaryPrices };
+                            delete resetTemp[p.id];
+                            setTemporaryPrices(resetTemp);
+                            handleUpdatePrice(p.id, compLowest);
                           }}
-                          className="w-full py-2 bg-[#32B33A]/15 text-[#32B33A] rounded-xl text-[11px] font-black hover:bg-[#32B33A] hover:text-white transition-all flex items-center justify-center gap-1"
+                          disabled={p.myPrice === compLowest}
+                          className={`w-full mt-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm ${
+                            p.myPrice === compLowest
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-150'
+                              : 'bg-red-50 hover:bg-red-500 hover:text-white text-red-500 border border-red-200'
+                          }`}
                         >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          AI 최저가 ₩{p.compPrice.toLocaleString()} 매칭 제안
+                          {p.myPrice === compLowest ? '현재 타사 최저가 일치함' : '타사 최저가 만들기'}
                         </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Row 2: 자사/타사 최저가 매칭 및 예상 효과 분석 */}
-                  <div className="lg:col-span-12 w-full mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                    {/* 타사 최저가 대응 카드 */}
-                    <div className="bg-gray-50/50 hover:bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col justify-between transition-colors">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-black text-gray-500 flex items-center gap-1.5">
-                            <span className="w-2 h-2 bg-red-400 rounded-full"></span>
-                            타사 최저가 (경쟁 최저 지수)
-                          </span>
-                          <strong className="text-sm font-black text-red-500 font-mono">
-                            ₩{compLowest.toLocaleString()}
-                          </strong>
-                        </div>
-                        <div className="bg-white rounded-xl p-3 border border-gray-100 space-y-1">
-                          <div className="flex items-center justify-between text-[10px] text-gray-400 font-black">
-                            <span>🎯 타사 최저가 매칭 예상 효과</span>
-                            <span className="text-red-500 bg-red-50 px-1.5 rounded text-[9px]">Gmarket 최저가 유지</span>
-                          </div>
-                          <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
-                            경쟁사의 최저가 판매 전선과 수평 일치시킴으로써 Gmarket 최적 노출 알고리즘 수혜. 
-                            <strong> Gmarket 검색 지수 즉시 복원</strong> 및 <strong>월간 판매량 약 1.25배 상승</strong>으로 월 예상 판매량 <strong className="text-gray-800">{Math.round(p.salesCount * 1.25).toLocaleString()}개</strong> 및 예상 월 GMV <strong className="text-gray-800">₩{Math.round(p.salesCount * 1.25 * compLowest).toLocaleString()}원</strong>수호 전망.
-                          </p>
-                        </div>
                       </div>
-                      <button
-                        onClick={() => {
-                          const resetTemp = { ...temporaryPrices };
-                          delete resetTemp[p.id];
-                          setTemporaryPrices(resetTemp);
-                          handleUpdatePrice(p.id, compLowest);
-                        }}
-                        disabled={p.myPrice === compLowest}
-                        className={`w-full mt-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm ${
-                          p.myPrice === compLowest
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-150'
-                            : 'bg-red-50 hover:bg-red-500 hover:text-white text-red-500 border border-red-200'
-                        }`}
-                      >
-                        {p.myPrice === compLowest ? '현재 타사 최저가 일치함' : '타사 최저가 만들기'}
-                      </button>
-                    </div>
 
-                    {/* 자사 최저가 대응 카드 */}
-                    <div className="bg-gray-50/50 hover:bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col justify-between transition-colors">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-black text-gray-500 flex items-center gap-1.5">
-                            <span className="w-2 h-2 bg-[#32B33A] rounded-full"></span>
-                            자사 최저가 (한계마진 8% 적용)
-                          </span>
-                          <strong className="text-sm font-black text-[#32B33A] font-mono">
-                            ₩{ownLowest.toLocaleString()}
-                          </strong>
-                        </div>
-                        <div className="bg-white rounded-xl p-3 border border-gray-100 space-y-1">
-                          <div className="flex items-center justify-between text-[10px] text-gray-400 font-black">
-                            <span>⚡ 자사 최저가 매칭 예상 효과</span>
-                            <span className="text-blue-600 bg-blue-50 px-1.5 rounded text-[9px]">시장 우위 세일즈</span>
+                      {/* 자사 최저가 대응 카드 */}
+                      <div className="bg-gray-50/50 hover:bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col justify-between transition-colors">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-gray-500 flex items-center gap-1.5">
+                              <span className="w-2 h-2 bg-[#32B33A] rounded-full"></span>
+                              자사 최저가 (한계마진 8% 적용)
+                            </span>
+                            <strong className="text-sm font-black text-[#32B33A] font-mono">
+                              ₩{ownLowest.toLocaleString()}
+                            </strong>
                           </div>
-                          <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
-                            매출 순수익 방어를 위한 최소 안전선(마진 8%)까지 대폭 하향 조정. Gmarket 특가 노출 가중치로 
-                            <strong> 트래픽 폭발 및 월간 판매량 약 1.6배 폭증</strong>하여 월 예상 판매량 <strong className="text-gray-800">{Math.round(p.salesCount * 1.6).toLocaleString()}개</strong> 및 예상 월 GMV <strong className="text-[#32B33A]">₩{Math.round(p.salesCount * 1.6 * ownLowest).toLocaleString()}원</strong> 기록 예상.
-                          </p>
+                          <div className="bg-white rounded-xl p-3 border border-gray-100 space-y-1">
+                            <div className="flex items-center justify-between text-[10px] text-gray-400 font-black">
+                              <span>⚡ 자사 최저가 매칭 예상 효과</span>
+                              <span className="text-blue-600 bg-blue-50 px-1.5 rounded text-[9px]">시장 우위 세일즈</span>
+                            </div>
+                            <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
+                              매출 순수익 방어를 위한 최소 안전선(마진 8%)까지 대폭 하향 조정. Gmarket 특가 노출 가중치로 
+                              <strong> 트래픽 폭발 및 월간 판매량 약 1.6배 폭증</strong>하여 월 예상 판매량 <strong className="text-gray-800">{Math.round(p.salesCount * 1.6).toLocaleString()}개</strong> 및 예상 월 GMV <strong className="text-[#32B33A]">₩{Math.round(p.salesCount * 1.6 * ownLowest).toLocaleString()}원</strong> 기록 예상.
+                            </p>
+                          </div>
                         </div>
+                        <button
+                          onClick={() => {
+                            const resetTemp = { ...temporaryPrices };
+                            delete resetTemp[p.id];
+                            setTemporaryPrices(resetTemp);
+                            handleUpdatePrice(p.id, ownLowest);
+                          }}
+                          disabled={p.myPrice === ownLowest}
+                          className={`w-full mt-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm ${
+                            p.myPrice === ownLowest
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-150'
+                              : 'bg-green-50 hover:bg-[#32B33A] hover:text-white text-[#32B33A] border border-green-200'
+                          }`}
+                        >
+                          {p.myPrice === ownLowest ? '현재 자사 최저가 일치함' : '자사 최저가 만들기'}
+                        </button>
                       </div>
-                      <button
-                        onClick={() => {
-                          const resetTemp = { ...temporaryPrices };
-                          delete resetTemp[p.id];
-                          setTemporaryPrices(resetTemp);
-                          handleUpdatePrice(p.id, ownLowest);
-                        }}
-                        disabled={p.myPrice === ownLowest}
-                        className={`w-full mt-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm ${
-                          p.myPrice === ownLowest
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-150'
-                            : 'bg-green-50 hover:bg-[#32B33A] hover:text-white text-[#32B33A] border border-green-200'
-                        }`}
-                      >
-                        {p.myPrice === ownLowest ? '현재 자사 최저가 일치함' : '자사 최저가 만들기'}
-                      </button>
                     </div>
-                  </div>
 
+                  </div>
+                );
+              })}
+
+              {/* 💡 더보기 버튼 완벽 정렬 완료 */}
+              {filteredProducts.length > visibleCount && (
+                <div className="pt-4 flex justify-center w-full">
+                  <button
+                    onClick={() => setVisibleCount((prev) => prev + 5)}
+                    className="px-6 py-3 bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+                  >
+                    더보기 ({visibleCount} / {filteredProducts.length})
+                  </button>
                 </div>
-              );
-            })
-          }
-       {filteredProducts.length > visibleCount && (
-            <div className="pt-4 flex justify-center w-full">
-              <button
-                onClick={() => setVisibleCount((prev) => prev + 5)}
-                className="px-6 py-3 bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1"
-              >
-                더보기 ({visibleCount} / {filteredProducts.length})
-              </button>
-            </div>
+              )}
+            </>
           )}
-        </> // 👈 전체를 감싸는 React Fragment 닫기 태그
-      )}
-    </div> // 👈 원래 있던 <div className="space-y-4">의 닫기 태그
+        </div>
+
+      </div>
+    </div>
+  );
+}
