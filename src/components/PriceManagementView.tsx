@@ -38,6 +38,8 @@ export default function PriceManagementView({ products, setProducts }: PriceMana
   const [statusFilter, setStatusFilter] = useState('전체');
   const [temporaryPrices, setTemporaryPrices] = useState<{ [key: string]: number }>({});
   const [isOptimizing, setIsOptimizing] = useState(false);
+  // 💡 [추가] 현재 화면에 보여줄 상품 개수 상태 (기본 3개)
+const [visibleCount, setVisibleCount] = useState(3);
 
   // Filter products catalog and search matches
   const filteredProducts = products.filter((p) => {
@@ -152,7 +154,8 @@ export default function PriceManagementView({ products, setProducts }: PriceMana
             {['전체', '최저가 유지', '가격 우위', '경쟁 밀림'].map((tab) => (
               <button
                 key={tab}
-                onClick={() => setStatusFilter(tab)}
+                onClick={() => {setStatusFilter(tab);
+                setVisibleCount(3);}}
                 className={`text-xs px-4 py-2 rounded-xl font-bold transition-all ${
                   statusFilter === tab
                     ? 'bg-[#32B33A] text-white shadow-sm'
@@ -181,7 +184,7 @@ export default function PriceManagementView({ products, setProducts }: PriceMana
               <p className="text-sm text-gray-400 font-semibold italic">조회 조건에 부합하는 판매 상품 정보가 존재하지 않습니다.</p>
             </div>
           ) : (
-            filteredProducts.map((p) => {
+            {filteredProducts.slice(0, visibleCount).map((p) => {
               const currentTempPrice = temporaryPrices[p.id] !== undefined ? temporaryPrices[p.id] : p.myPrice;
               const hasChanged = currentTempPrice !== p.myPrice;
               const ownLowest = getOwnLowestPrice(p.id, p.compPrice);
@@ -378,10 +381,17 @@ export default function PriceManagementView({ products, setProducts }: PriceMana
                 </div>
               );
             })
+          }
+       {filteredProducts.length > visibleCount && (
+            <div className="pt-4 flex justify-center w-full">
+              <button
+                onClick={() => setVisibleCount((prev) => prev + 5)}
+                className="px-6 py-3 bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+              >
+                더보기 ({visibleCount} / {filteredProducts.length})
+              </button>
+            </div>
           )}
-        </div>
-
-      </div>
-    </div>
-  );
-}
+        </> // 👈 전체를 감싸는 React Fragment 닫기 태그
+      )}
+    </div> // 👈 원래 있던 <div className="space-y-4">의 닫기 태그
